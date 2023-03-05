@@ -59,29 +59,26 @@ class vospitatel(bascet,mom,analitic):
         self.init_analitic(data_inf , age, m ,w)
         self.data = data
 
-    def app_child(self,load):
-        vedro =  bascet()
-
-        self.app_del_gender_age(load)
-
+    def correct_key(load):
         if('а'<=load[0][0] and 'я'>=load[0][0]):
             char = chr(ord(load[0][0])-32)
         else:
             char = load[0][0]
+        return char 
+
+    def app_child(self,load):
+        vedro =  bascet()
+
+        self.app_del_gender_age(load)
+        char = self.correct_key(load)
 
         slovar = dict(self.data[char])
         slovar.update({load[0]+str(load[1])+load[2]:load+vedro.down()})
         self.data.update({char:slovar})
 
-
-    
     def del_child(self,load):
         self.app_del_gender_age(load, -1)
-
-        if('а'<=load[0][0] and 'я'>=load[0][0]):
-            char = chr(ord(load[0][0])-32)
-        else:
-            char = load[0][0]
+        char = self.correct_key(load)
 
         slovar = dict(self.data[char]) 
         arr = slovar.get(load[0]+str(load[1])+load[2])
@@ -93,7 +90,6 @@ class vospitatel(bascet,mom,analitic):
             del slovar[load[0]+str(load[1])+load[2]]
             self.data.update({char:slovar})
         
-
     def write_all_data(self, db):
         for x in self.data.keys():
             print ( x ,"   ", self.data[ x ])
