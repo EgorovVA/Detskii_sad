@@ -1,5 +1,6 @@
 import random
 import shelve
+import math
 
 class color_RGB:
     def genereit_color(self): 
@@ -9,20 +10,21 @@ class bascet(color_RGB):
     def down(self):
         self.bols = random.randrange(1, 10, 1)
         self.cube = random.randrange(1, 10, 1)
-
         return self.bols,self.cube,self.genereit_color()
     
-class mom:
+class child:
+    def __init__(self, name, age, gender):
+        self.name=name
+        self.age = age
+        self.gender = gender    
+
+class mom(child):
     def inslall_child(self):
         return self.name, self.age , self.gender
     def unslall_child(self):
         return [self.name, self.age , self.gender]
     
-class child(mom):
-    def __init__(self, name, age, gender):
-        self.name=name
-        self.age = age
-        self.gender = gender
+
 
 class analitic:
     def init_analitic(self, data_inf , age, m , w):
@@ -58,22 +60,20 @@ class vospitatel(bascet,mom,analitic):
         self.data = data
 
     def app_child(self,load):
-
         vedro =  bascet()
+
         self.app_del_gender_age(load)
-        
 
         if('а'<=load[0][0] and 'я'>=load[0][0]):
             char = chr(ord(load[0][0])-32)
         else:
             char = load[0][0]
-        self.data[char]+=[load+vedro.down()]
 
-    def finde_el(self, arr,load, len):
-        for i in range(len):
-            if(arr[i][0]==load[0] and arr[i][1]==load[1] and arr[i][2]==load[2]):
-                return i
-        return -1
+        slovar = dict(self.data[char])
+        slovar.update({load[0]+str(load[1])+load[2]:load+vedro.down()})
+        self.data.update({char:slovar})
+
+
     
     def del_child(self,load):
         self.app_del_gender_age(load, -1)
@@ -83,15 +83,16 @@ class vospitatel(bascet,mom,analitic):
         else:
             char = load[0][0]
 
-        arr = self.data[char]
+        slovar = dict(self.data[char]) 
+        arr = slovar.get(load[0]+str(load[1])+load[2])
 
-        index = self.finde_el(arr,load,len(arr))
-        if index !=-1:
-            print("Забираем игрушки: "+str(arr[index][3])+ " " +str(arr[index][4])+str(arr[index][5]) )
-            arr.pop(index)
-        else:
+        if arr is None:
             print("Такого ребенка нет")
-        self.data[char] = arr
+        else:
+            print("Забираем игрушки: "+str(arr[3])+ " " +str(arr[4])+str(arr[5]) )
+            del slovar[load[0]+str(load[1])+load[2]]
+            self.data.update({char:slovar})
+        
 
     def write_all_data(self, db):
         for x in self.data.keys():
@@ -101,11 +102,6 @@ class vospitatel(bascet,mom,analitic):
 if __name__ == '__main__':
     db= shelve.open("Дети")
     db_info= shelve.open("Доп_информ")
-    
-
-
-
-    
     start =  int(input("Создать новый файл или работать с ныненшним(0/1): "))
     if(start == 0):
         m = 0
@@ -125,8 +121,8 @@ if __name__ == '__main__':
     cout_arr_age = []
     for i in range(8):
         cout_arr_age.append(i)
-    while(1):
 
+    while(1):
         menu = int(input("Здраствуйте, что вы хотите сделать (напишите число из пунктов):\n 1)Привести детей\n 2)Время уже 12:00, надо узнать сколько мальчиков и девочек в садике\n 3)Время уже 12:00, надо узнать колличсетыо детей разного возвраста\n 4)Забрать детей\n 5)Вывести все данные о детях в садике\n 6)Сохранить и выйти \n"))
         if(menu==1):
             count_child = input("Сколько детей вы привели в садик: ")
@@ -134,7 +130,7 @@ if __name__ == '__main__':
                 name = input("Введите ФИО вашего ребёночка: ")
                 age = input("Введите сколько ему годиков(0-7): ")
                 gender = input("Введите какого он пола (м/ж): ")
-                reg_gata = child(name,int(age),gender)
+                reg_gata = mom(name,int(age),gender)
                 load = reg_gata.inslall_child()
                 a.app_child(load)
 
@@ -154,7 +150,7 @@ if __name__ == '__main__':
             name = input("Введите ФИО вашего ребёночка: ")
             age = input("Введите сколько ему годиков(0-7): ")
             gender = input("Введите какого он пола (м/ж): ")
-            reg_gata = child(name,int(age),gender)
+            reg_gata = mom(name,int(age),gender)
             load = reg_gata.unslall_child()
             a.del_child(load)
 
